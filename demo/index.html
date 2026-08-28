@@ -47,11 +47,14 @@
   }
   button:hover { background: var(--ink); color: #F4F6F9; }
   button.variant {
-    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px;
-    padding: 8px 12px; border-color: var(--line); color: var(--accent);
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 10px 14px 6px; border-color: var(--line); color: var(--accent);
   }
-  button.variant:hover { background: var(--paper); color: var(--ink); border-color: var(--ink); }
-  button.variant.on { background: var(--ink); color: #F4F6F9; border-color: var(--ink); }
+  button.variant:hover { background: var(--paper); color: var(--ink); border-color: var(--accent); }
+  button.variant.on { background: #F4F6F9; color: var(--ink); border-width: 2px; border-color: var(--ink); margin: -0.5px; }
+  button.variant .thumb { position: relative; width: 48px; height: 46px; }
+  #variants, #colors { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   button.swatch {
     width: 28px; height: 28px; border-radius: 50%; padding: 0;
     border: 2.5px solid var(--line);
@@ -102,7 +105,7 @@
         </div>
         <div class="footer"><span>Networks &amp; Operating Systems</span><span>17 / 42</span></div>
       </div>
-      <daemonling-sprite id="p" size="90" variant="classic" style="bottom:110px;z-index:5;"></daemonling-sprite>
+      <daemonling-sprite id="p" size="90" variant="classic" style="bottom:147px;z-index:5;"></daemonling-sprite>
     </div>
   </div>
 
@@ -168,21 +171,28 @@ p.despawn();                 // gone instantly, no explosion</pre>
     if (w > 0) stage.style.transform = `scale(${w / 1920})`;
   }).observe(wrap);
 
-  const VARIANTS = [
-    ['classic', 'classic · 1a'], ['chip', 'chip · 1c'], ['blob', 'blob · 1d'],
-    ['terminal', 'terminal · 1e'], ['daemon', 'daemon · 2a'],
-    ['packet', 'packet · 2b'], ['cursor', 'cursor · 2c'],
-  ];
+  const VARIANTS = ['classic', 'chip', 'blob', 'terminal', 'daemon', 'packet', 'cursor'];
   const COLORS = [
     ['#04102B', 'Dark (default)'], ['#F2A6C0', 'Pink'],
     ['#7053D6', 'Violet'], ['#1E7A4F', 'Green'],
   ];
 
   const vHost = document.getElementById('variants');
-  for (const [id, label] of VARIANTS) {
+  const minis = [];
+  for (const id of VARIANTS) {
     const b = document.createElement('button');
     b.className = 'variant' + (id === p.variant ? ' on' : '');
-    b.textContent = label;
+    const thumb = document.createElement('span');
+    thumb.className = 'thumb';
+    const mini = document.createElement('daemonling-sprite');
+    mini.setAttribute('variant', id);
+    mini.setAttribute('size', '36');
+    thumb.appendChild(mini);
+    const label = document.createElement('span');
+    label.textContent = id;
+    b.append(thumb, label);
+    minis.push(mini);
+    mini.spawn(24);
     b.onclick = () => {
       p.variant = id;
       vHost.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
@@ -198,6 +208,7 @@ p.despawn();                 // gone instantly, no explosion</pre>
     b.style.background = value;
     b.onclick = () => {
       p.color = value;
+      minis.forEach(m => { m.color = value; });
       cHost.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
     };
     cHost.appendChild(b);
