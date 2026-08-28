@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>daemonling — demo</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="../dist/index.global.js"></script>
+<style>
+  :root {
+    --ink: #04102B; --accent: #5A7297; --line: #C9CFDA; --bg: #E8EBF0;
+    --paper: #FFFFFF; --lime: #D9FF3C; --red: #FF4E6A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: Manrope, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 16px; padding: 36px 28px 64px;
+  }
+  a { color: var(--ink); } a:hover { color: var(--accent); }
+  .row { width: min(1240px, 100%); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .head { align-items: baseline; justify-content: space-between; gap: 16px; }
+  .title { font-size: 22px; font-weight: 800; }
+  .sub { font-size: 14px; color: var(--accent); font-weight: 600; }
+  .stage-wrap {
+    width: min(1240px, 100%); aspect-ratio: 1920 / 1080; overflow: hidden;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--paper);
+  }
+  .stage { width: 1920px; height: 1080px; transform-origin: 0 0; position: relative; background: var(--paper); }
+  .slide { position: absolute; inset: 0; padding: 110px 130px 90px; display: flex; flex-direction: column; gap: 44px; }
+  .kicker { font-size: 26px; font-weight: 700; letter-spacing: .14em; color: #9AA1AB; }
+  .headline { font-size: 72px; font-weight: 800; color: #1A1A1A; line-height: 1.05; }
+  .bullets { display: flex; flex-direction: column; gap: 26px; font-size: 34px; color: #565B63; max-width: 1100px; }
+  .bullet { display: flex; gap: 20px; }
+  .bullet span:first-child { color: #B9BEC6; }
+  .footer {
+    margin-top: auto; display: flex; justify-content: space-between;
+    font-size: 24px; color: #B9BEC6; border-top: 2px solid #E4E6EA; padding-top: 28px;
+  }
+  .label { font-size: 13px; font-weight: 800; letter-spacing: .08em; color: var(--accent); margin-right: 4px; }
+  button {
+    font-family: Manrope, sans-serif; font-size: 14px; font-weight: 700;
+    padding: 10px 16px; border: 1.5px solid var(--ink); border-radius: 8px;
+    background: var(--paper); color: var(--ink); cursor: pointer;
+  }
+  button:hover { background: var(--ink); color: #F4F6F9; }
+  button.variant {
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px;
+    padding: 8px 12px; border-color: var(--line); color: var(--accent);
+  }
+  button.variant:hover { background: var(--paper); color: var(--ink); border-color: var(--ink); }
+  button.variant.on { background: var(--ink); color: #F4F6F9; border-color: var(--ink); }
+  button.swatch {
+    width: 28px; height: 28px; border-radius: 50%; padding: 0;
+    border: 2.5px solid var(--line);
+  }
+  button.swatch.on { border-color: var(--ink); }
+  button.show { background: var(--lime); }
+  button.show:hover { background: var(--ink); color: var(--lime); }
+  button.zombie { border-color: var(--accent); color: var(--accent); }
+  button.zombie:hover { background: var(--accent); color: #F4F6F9; }
+  button.boom { border-color: var(--red); color: var(--red); }
+  button.boom:hover { background: var(--red); color: #FFF; }
+  button.demo { background: var(--ink); color: #F4F6F9; }
+  button.demo:hover { background: var(--accent); border-color: var(--accent); }
+  input {
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 14px;
+    font-weight: 700; letter-spacing: .06em; padding: 10px 12px;
+    border: 1.5px solid var(--accent); border-radius: 8px; color: var(--ink);
+    background: var(--paper); width: 140px; text-transform: uppercase; outline: none;
+  }
+  .spacer { width: 10px; } .grow { flex: 1; }
+  .cards { width: min(1240px, 100%); display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; margin-top: 12px; }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+  .card h2 { font-size: 12px; font-weight: 800; letter-spacing: .12em; color: var(--accent); margin: 0 0 12px; }
+  .card pre {
+    margin: 0; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px; line-height: 1.65; color: var(--ink); white-space: pre-wrap;
+  }
+  .card p { font-size: 13px; color: var(--accent); margin: 12px 0 0; line-height: 1.5; }
+  .card code { font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+  <div class="row head">
+    <div class="title">daemonling</div>
+    <div class="sub">preview &amp; controls · lives transparently on top of the slide</div>
+  </div>
+
+  <div class="stage-wrap" id="wrap">
+    <div class="stage" id="stage">
+      <div class="slide">
+        <div class="kicker">OPERATING SYSTEMS · CHAPTER 3</div>
+        <div class="headline">The lifecycle of a process</div>
+        <div class="bullets">
+          <div class="bullet"><span>–</span><span>new → ready → running → waiting → terminated</span></div>
+          <div class="bullet"><span>–</span><span>The scheduler decides who gets the CPU</span></div>
+          <div class="bullet"><span>–</span><span>Zombie: finished, but not yet reaped</span></div>
+        </div>
+        <div class="footer"><span>Networks &amp; Operating Systems</span><span>17 / 42</span></div>
+      </div>
+      <daemonling-sprite id="p" size="90" variant="classic" style="bottom:110px;z-index:5;"></daemonling-sprite>
+    </div>
+  </div>
+
+  <div class="row" style="gap:8px;">
+    <span class="label">VARIANT</span>
+    <span id="variants"></span>
+    <span style="width:14px;"></span>
+    <span class="label">COLOR</span>
+    <span id="colors"></span>
+  </div>
+
+  <div class="row">
+    <button id="bSpawn">Spawn</button>
+    <button id="bLeft">← Walk</button>
+    <button id="bRight">Walk →</button>
+    <span class="spacer"></span>
+    <input id="word" value="DEADBEEF">
+    <button id="bShow" class="show">Show word</button>
+    <button id="bHide">Sign down</button>
+    <span class="spacer"></span>
+    <button id="bZombie" class="zombie">Zombie</button>
+    <button id="bBoom" class="boom">Terminate</button>
+    <span class="grow"></span>
+    <button id="bDemo" class="demo">Full run</button>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h2>INSTALL</h2>
+      <pre>npm install daemonling
+
+import 'daemonling';
+
+&lt;daemonling-sprite id="p" size="90"
+  variant="classic"
+  style="bottom:110px"&gt;&lt;/daemonling-sprite&gt;</pre>
+      <p>Variants: <code>classic · chip · blob · terminal · daemon · packet · cursor</code> — switchable at runtime via <code>p.variant = 'daemon'</code>. Body color via the <code>color</code> attribute, any CSS color (dark by default, the sign stays dark).</p>
+      <p>The slide container needs <code>position:relative</code>. The figure itself is transparent and never blocks clicks on the slide.</p>
+    </div>
+    <div class="card">
+      <h2>CONTROL (ALL METHODS RETURN PROMISES)</h2>
+      <pre>const p = document.getElementById('p');
+await p.spawn(300);          // pops up at x = 300
+await p.walkTo(1400);        // walks there, faces the direction of travel
+await p.showWord('MUTEX');   // holds up the sign, keeps breathing
+await p.hideWord();          // sign back down
+await p.zombie();            // eyes turn to crosses, tilts over
+await p.terminate();         // shake → explosion → gone
+p.despawn();                 // gone instantly, no explosion</pre>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const p = document.getElementById('p');
+  const wrap = document.getElementById('wrap');
+  const stage = document.getElementById('stage');
+  const wordInput = document.getElementById('word');
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  new ResizeObserver(es => {
+    const w = es[0].contentRect.width;
+    if (w > 0) stage.style.transform = `scale(${w / 1920})`;
+  }).observe(wrap);
+
+  const VARIANTS = [
+    ['classic', 'classic · 1a'], ['chip', 'chip · 1c'], ['blob', 'blob · 1d'],
+    ['terminal', 'terminal · 1e'], ['daemon', 'daemon · 2a'],
+    ['packet', 'packet · 2b'], ['cursor', 'cursor · 2c'],
+  ];
+  const COLORS = [
+    ['#04102B', 'Dark (default)'], ['#F2A6C0', 'Pink'],
+    ['#7053D6', 'Violet'], ['#1E7A4F', 'Green'],
+  ];
+
+  const vHost = document.getElementById('variants');
+  for (const [id, label] of VARIANTS) {
+    const b = document.createElement('button');
+    b.className = 'variant' + (id === p.variant ? ' on' : '');
+    b.textContent = label;
+    b.onclick = () => {
+      p.variant = id;
+      vHost.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    };
+    vHost.appendChild(b);
+  }
+
+  const cHost = document.getElementById('colors');
+  for (const [value, name] of COLORS) {
+    const b = document.createElement('button');
+    b.className = 'swatch' + (value === p.color ? ' on' : '');
+    b.title = name;
+    b.style.background = value;
+    b.onclick = () => {
+      p.color = value;
+      cHost.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    };
+    cHost.appendChild(b);
+  }
+
+  const word = () => wordInput.value.toUpperCase() || 'DEADBEEF';
+  wordInput.addEventListener('input', () => { wordInput.value = wordInput.value.toUpperCase(); });
+
+  document.getElementById('bSpawn').onclick = () => {
+    if (p.state !== 'hidden') p.despawn();
+    p.spawn(260 + Math.random() * 500);
+  };
+  document.getElementById('bLeft').onclick = () => p.walkTo(Math.max((p.x || 0) - 520, 170));
+  document.getElementById('bRight').onclick = () => p.walkTo(Math.min((p.x || 0) + 520, 1730));
+  document.getElementById('bShow').onclick = () => p.showWord(word());
+  document.getElementById('bHide').onclick = () => p.hideWord();
+  document.getElementById('bZombie').onclick = () => p.zombie();
+  document.getElementById('bBoom').onclick = () => p.terminate();
+  document.getElementById('bDemo').onclick = async () => {
+    p.despawn();
+    await wait(150);
+    await p.spawn(240);
+    await wait(350);
+    await p.walkTo(1150);
+    await p.showWord(word());
+    await wait(2000);
+    await p.hideWord();
+    await wait(250);
+    await p.walkTo(1650);
+    await wait(200);
+    await p.terminate();
+  };
+
+  setTimeout(() => {
+    if (p.state === 'hidden') p.spawn(320).then(() => p.walkTo(880));
+  }, 500);
+})();
+</script>
+</body>
+</html>

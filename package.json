@@ -1,0 +1,57 @@
+{
+  "name": "daemonling",
+  "version": "0.1.0",
+  "description": "A tiny animated process character (web component) that lives on top of your slides — spawns, walks, holds up code words, goes zombie, and terminates with a bang.",
+  "keywords": [
+    "web-component",
+    "custom-element",
+    "sprite",
+    "animation",
+    "mascot",
+    "slides",
+    "presentation",
+    "teaching",
+    "operating-systems"
+  ],
+  "author": "Florian Wenzel",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlorianWenzel/daemonling.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FlorianWenzel/daemonling/issues"
+  },
+  "homepage": "https://github.com/FlorianWenzel/daemonling#readme",
+  "type": "module",
+  "sideEffects": true,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "happy-dom": "^15.11.7",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
