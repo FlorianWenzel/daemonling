@@ -4,6 +4,12 @@ A tiny animated process character for your slides. `<daemonling-sprite>` is a ze
 
 Originally built to teach the process lifecycle (`new → ready → running → waiting → terminated`) in an operating systems lecture, but it works anywhere you want a small, expressive mascot: slides, docs, demos, error pages.
 
+**[▶ Live demo](https://florianwenzel.github.io/daemonling/)**
+
+![The seven variants](assets/variants.png)
+
+![Sign, zombie state, and custom colors](assets/states.png)
+
 - **Zero dependencies**, ~10 kB of runtime
 - **7 variants**: `classic · chip · blob · terminal · daemon · packet · cursor`
 - **Any body color** — accent colors are derived automatically
@@ -12,18 +18,27 @@ Originally built to teach the process lifecycle (`new → ready → running → 
 
 ## Install
 
+The package is published to the **GitHub Package Registry**. Point the `@florianwenzel` scope there in your `.npmrc`:
+
+```ini
+@florianwenzel:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+GitHub Packages requires authentication even for public packages — any personal access token with the `read:packages` scope works.
+
 ```sh
-npm install daemonling
+npm install @florianwenzel/daemonling
 ```
 
 ```js
-import 'daemonling'; // registers <daemonling-sprite>
+import '@florianwenzel/daemonling'; // registers <daemonling-sprite>
 ```
 
-Or via CDN, no build step:
+No build step? Grab `index.global.js` from the [latest release](https://github.com/FlorianWenzel/daemonling/releases/latest) and drop it in:
 
 ```html
-<script src="https://unpkg.com/daemonling"></script>
+<script src="index.global.js"></script>
 ```
 
 ## Use
