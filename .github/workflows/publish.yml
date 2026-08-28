@@ -11,6 +11,8 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,7 +22,7 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - name: Publish to npmjs (as "daemonling")
-        if: ${{ secrets.NPM_TOKEN != '' }}
+        if: ${{ env.NPM_TOKEN != '' }}
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
