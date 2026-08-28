@@ -17,9 +17,20 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          registry-url: https://npm.pkg.github.com
+          registry-url: https://registry.npmjs.org
       - run: npm ci
-      - run: npm publish
+      - name: Publish to npmjs (as "daemonling")
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to GitHub Packages (as "@florianwenzel/daemonling")
+        run: |
+          echo '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}' > .npmrc
+          npm pkg set name=@florianwenzel/daemonling
+          npm publish --registry=https://npm.pkg.github.com
+          rm .npmrc
+          git checkout -- package.json
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create GitHub release with the script-tag bundle

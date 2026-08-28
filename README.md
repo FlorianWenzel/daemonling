@@ -18,28 +18,37 @@ Originally built to teach the process lifecycle (`new → ready → running → 
 
 ## Install
 
-The package is published to the **GitHub Package Registry**. Point the `@florianwenzel` scope there in your `.npmrc`:
+```sh
+npm install daemonling
+```
+
+```js
+import 'daemonling'; // registers <daemonling-sprite>
+```
+
+Or via CDN, no build step:
+
+```html
+<script src="https://unpkg.com/daemonling"></script>
+```
+
+The bundle is also attached to every [GitHub release](https://github.com/FlorianWenzel/daemonling/releases/latest) as `index.global.js`.
+
+<details>
+<summary>Alternative: GitHub Package Registry</summary>
+
+The same package is mirrored as `@florianwenzel/daemonling` on GitHub Packages. Point the scope there in your `.npmrc` (GitHub Packages requires a token with `read:packages` even for public installs):
 
 ```ini
 @florianwenzel:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
-GitHub Packages requires authentication even for public packages — any personal access token with the `read:packages` scope works.
-
 ```sh
 npm install @florianwenzel/daemonling
 ```
 
-```js
-import '@florianwenzel/daemonling'; // registers <daemonling-sprite>
-```
-
-No build step? Grab `index.global.js` from the [latest release](https://github.com/FlorianWenzel/daemonling/releases/latest) and drop it in:
-
-```html
-<script src="index.global.js"></script>
-```
+</details>
 
 ## Use
 

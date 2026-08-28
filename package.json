@@ -1,9 +1,6 @@
 {
-  "name": "@florianwenzel/daemonling",
+  "name": "daemonling",
   "version": "0.1.0",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "description": "A tiny animated process character (web component) that lives on top of your slides — spawns, walks, holds up code words, goes zombie, and terminates with a bang.",
   "keywords": [
     "web-component",
@@ -31,6 +28,8 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
