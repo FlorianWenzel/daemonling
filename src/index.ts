@@ -1,7 +1,8 @@
 import { Daemonling } from './element';
 
 export { Daemonling } from './element';
-export type { DaemonlingState } from './element';
+export type { DaemonlingState, Direction, LookDirection } from './element';
+export type { SignOptions, SignStyle } from './svg';
 export { VARIANTS, VARIANT_ALIASES } from './variants';
 export type { VariantConfig } from './variants';
 

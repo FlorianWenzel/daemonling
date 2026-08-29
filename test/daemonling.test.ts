@@ -131,6 +131,133 @@ describe('lifecycle', () => {
   });
 });
 
+describe('actions', () => {
+  it('wave returns to idle', async () => {
+    const el = create();
+    await el.spawn(100);
+    await el.wave();
+    expect(el.state).toBe('idle');
+  });
+
+  it('jump returns to idle', async () => {
+    const el = create();
+    await el.spawn(100);
+    await el.jump();
+    expect(el.state).toBe('idle');
+  });
+
+  it('point accepts English and German directions', async () => {
+    const el = create();
+    await el.spawn(100);
+    await el.point('left', 50);
+    expect(el.state).toBe('idle');
+    await el.point('rechts', 50);
+    expect(el.state).toBe('idle');
+  });
+
+  it('think shows and removes the bubble', async () => {
+    const el = create();
+    await el.spawn(100);
+    const p = el.think(120);
+    await new Promise((r) => setTimeout(r, 30));
+    expect(el.shadowRoot!.querySelector('.dl-think')).toBeTruthy();
+    await p;
+    expect(el.shadowRoot!.querySelector('.dl-think')).toBeNull();
+    expect(el.state).toBe('idle');
+  });
+
+  it('sleep blocks walking until wake', async () => {
+    const el = create();
+    await el.spawn(100);
+    await el.sleep();
+    expect(el.state).toBe('sleeping');
+    await el.walkTo(400);
+    expect(el.x).toBe(100);
+    await el.wake();
+    expect(el.state).toBe('idle');
+    await el.walkTo(160);
+    expect(el.x).toBe(160);
+  });
+
+  it('freeze blocks actions until unfreeze', async () => {
+    const el = create();
+    await el.spawn(100);
+    await el.freeze();
+    expect(el.state).toBe('frozen');
+    await el.wave();
+    expect(el.state).toBe('frozen');
+    await el.unfreeze();
+    expect(el.state).toBe('idle');
+  });
+
+  it('startle ends idle', async () => {
+    const el = create();
+    await el.spawn(100);
+    await el.startle();
+    expect(el.state).toBe('idle');
+  });
+
+  it('celebrate ends idle', async () => {
+    const el = create();
+    await el.spawn(100);
+    await el.celebrate();
+    expect(el.state).toBe('idle');
+  });
+
+  it('fork returns a spawned clone with copied attributes', async () => {
+    const el = create({ variant: 'blob', color: '#7053D6' });
+    await el.spawn(100);
+    const clone = await el.fork();
+    expect(clone).not.toBeNull();
+    expect(clone!.tagName.toLowerCase()).toBe(TAG_NAME);
+    expect(clone!.variant).toBe('blob');
+    expect(clone!.color).toBe('#7053D6');
+    expect(clone!.state).toBe('idle');
+    expect(clone!.x).toBeGreaterThan(100);
+  });
+
+  it('fork is refused while hidden', async () => {
+    const el = create();
+    expect(await el.fork()).toBeNull();
+  });
+
+  it('walkTo honors a per-walk speed override', async () => {
+    const el = create();
+    await el.spawn(100);
+    const t0 = performance.now();
+    await el.walkTo(200, { speed: 10000 });
+    expect(el.x).toBe(200);
+    expect(performance.now() - t0).toBeLessThan(500);
+  });
+});
+
+describe('sign', () => {
+  it('defaults to the sign style with lime background', () => {
+    const el = create();
+    expect(el.signStyle).toBe('sign');
+    expect(el.signColor).toBe('#D9FF3C');
+  });
+
+  it('bubble style switches default background and rebuilds', () => {
+    const el = create({ 'sign-style': 'bubble' });
+    expect(el.signStyle).toBe('bubble');
+    expect(el.signColor).toBe('#FFFFFF');
+    expect(el.shadowRoot!.querySelector('#signFlip rect')!.getAttribute('rx')).toBe('17');
+  });
+
+  it('accepts the legacy German style name "blase"', () => {
+    const el = create({ 'sign-style': 'blase' });
+    expect(el.signStyle).toBe('bubble');
+  });
+
+  it('applies custom sign colors', () => {
+    const el = create({ 'sign-color': '#FFFFFF', 'sign-text-color': '#FF4E6A' });
+    const rect = el.shadowRoot!.querySelector('#signFlip rect')!;
+    expect(rect.getAttribute('fill')).toBe('#FFFFFF');
+    expect(el.shadowRoot!.querySelector('#signText')!.getAttribute('fill')).toBe('#FF4E6A');
+  });
+});
+
 describe('variant data', () => {
   it('every variant has a body and eyes', () => {
     for (const [name, cfg] of Object.entries(VARIANTS)) {

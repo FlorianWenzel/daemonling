@@ -10,6 +10,8 @@ Originally built to teach the process lifecycle (`new → ready → running → 
 
 ![Sign, zombie state, and custom colors](assets/states.png)
 
+![Thinking, sleeping, speech bubble, and pointing](assets/actions.png)
+
 - **Zero dependencies**, ~10 kB of runtime
 - **7 variants**: `classic · chip · blob · terminal · daemon · packet · cursor`
 - **Any body color** — accent colors are derived automatically
@@ -65,6 +67,18 @@ await p.spawn(300);          // pops up at x = 300 (px within the container)
 await p.walkTo(1400);        // walks there, faces the direction of travel
 await p.showWord('MUTEX');   // holds up the sign, keeps breathing
 await p.hideWord();          // sign back down
+await p.wave();              // waves
+await p.jump();              // hops with squash & stretch
+await p.point('left');       // points in a direction
+await p.think(1800);         // thought bubble with pulsing dots
+await p.sleep();             // falls asleep, zZz
+await p.wake();              // wakes up
+await p.startle();           // startles (an interrupt!)
+await p.freeze();            // freezes gray (SIGSTOP)
+await p.unfreeze();          // thaws (SIGCONT)
+await p.celebrate();         // cheers with confetti (exit 0)
+const kid = await p.fork();  // duplicates itself, returns the clone
+p.look('left');              // gaze direction, instant
 await p.zombie();            // eyes turn to crosses, tilts over, wobbles
 await p.terminate();         // shake → explosion → gone
 p.despawn();                 // gone instantly, no explosion
@@ -80,19 +94,33 @@ All methods are `async` and resolve when the animation settles, so choreographie
 | `color`   | `#04102B` | Body color, any CSS color. Detail/accent colors are derived automatically; the sign always stays dark. |
 | `size`    | `90`      | Figure height in px. |
 | `speed`   | `300`     | Walking speed in px/s at `size="90"` (scales with size). |
+| `sign-style` | `sign` | `sign` or `bubble` (speech bubble; arms stay down). |
+| `sign-color` | `#D9FF3C` | Sign background (`#FFFFFF` for bubbles). |
+| `sign-text-color` | `#04102B` | Sign text color. |
+| `sign-border-color` | `#04102B` | Sign border color. |
 
 ## API
 
 | Member | Description |
 | ------ | ----------- |
 | `spawn(x?)` | Pop up at `x` (px within the container). |
-| `walkTo(x)` | Walk to `x` with a bouncy gait, facing the direction of travel. |
-| `showWord(word)` | Stop and hold up a sign (max 14 chars, uppercased). |
+| `walkTo(x, {speed}?)` | Walk to `x` with a bouncy gait, facing the direction of travel. Optional per-walk speed (px/s). |
+| `showWord(word)` | Stop and hold up the sign (max 14 chars, uppercased). |
 | `hideWord()` | Lower the sign. |
+| `wave()` | Wave with the right arm (armless variants tilt-wave). |
+| `jump()` | Hop once, with squash & stretch. |
+| `point(dir, ms?)` | Point `'left'` or `'right'` for `ms` (default 1400). |
+| `think(ms?)` | Thought bubble with pulsing dots for `ms` (default 1800). |
+| `sleep()` / `wake()` | Fall asleep (zZz, blocks everything) / wake up. |
+| `startle()` | Brief shock — an interrupt. Doesn't end sleep; use `wake()`. |
+| `freeze()` / `unfreeze()` | Freeze gray in the current pose (SIGSTOP) / thaw (SIGCONT). |
+| `celebrate()` | Cheer with confetti (exit 0). |
+| `fork()` | Duplicate; resolves with the clone element (also a full `Daemonling`). |
+| `look(dir)` | Gaze `'left' \| 'right' \| 'up' \| 'down' \| 'center'`, instant. |
 | `zombie()` | Eyes to crosses, tilts over, wobbles quietly. Finished, but not yet reaped. |
 | `terminate()` | Panic → explosion into splinters → hidden. |
 | `despawn()` | Hide immediately, no explosion. |
-| `state` | Read-only: `'hidden' \| 'idle' \| 'walking' \| 'showing' \| 'zombie' \| 'exploding'`. |
+| `state` | Read-only: `'hidden' \| 'idle' \| 'walking' \| 'showing' \| 'waving' \| 'jumping' \| 'pointing' \| 'thinking' \| 'sleeping' \| 'startled' \| 'frozen' \| 'cheering' \| 'zombie' \| 'exploding'`. |
 | `x` | Read-only: current x position in px. |
 
 ## TypeScript
@@ -116,7 +144,7 @@ open demo/index.html
 ## Notes
 
 - The container needs `position: relative` (or any positioned ancestor); the sprite is `position: absolute` and anchored to the bottom edge. Offset it with inline `style="bottom: …"`.
-- The legacy German variant names `klassiker` and `paket` still resolve (to `classic` and `packet`).
+- The legacy German variant names `klassiker` and `paket` still resolve (to `classic` and `packet`), as do the German direction words (`links`/`rechts`/`oben`/`unten`/`mitte`) and `sign-style="blase"`.
 - The sign uses JetBrains Mono if it's loaded on the page, falling back to the system monospace stack.
 
 ## License

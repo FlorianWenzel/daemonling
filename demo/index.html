@@ -54,7 +54,14 @@
   button.variant:hover { background: var(--paper); color: var(--ink); border-color: var(--accent); }
   button.variant.on { background: #F4F6F9; color: var(--ink); border-width: 2px; border-color: var(--ink); margin: -0.5px; }
   button.variant .thumb { position: relative; width: 48px; height: 46px; }
-  #variants, #colors { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #variants, #colors, #actions, #looks, #signs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  button.action { font-size: 13.5px; padding: 8px 13px; border-color: var(--line); }
+  button.look {
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 14px;
+    width: 34px; height: 34px; padding: 0; border-color: var(--line);
+  }
+  button.sign-toggle { font-size: 13px; padding: 8px 13px; border-color: var(--line); color: var(--accent); }
+  button.sign-toggle.on { background: var(--ink); color: #F4F6F9; border-color: var(--ink); }
   button.swatch {
     width: 28px; height: 28px; border-radius: 50%; padding: 0;
     border: 2.5px solid var(--line);
@@ -132,6 +139,17 @@
     <button id="bDemo" class="demo">Full run</button>
   </div>
 
+  <div class="row" style="gap:8px;">
+    <span class="label">ACTIONS</span>
+    <span id="actions"></span>
+    <span style="width:14px;"></span>
+    <span class="label">LOOK</span>
+    <span id="looks"></span>
+    <span style="width:14px;"></span>
+    <span class="label">SIGN</span>
+    <span id="signs"></span>
+  </div>
+
   <div class="cards">
     <div class="card">
       <h2>INSTALL</h2>
@@ -152,9 +170,22 @@ await p.spawn(300);          // pops up at x = 300
 await p.walkTo(1400);        // walks there, faces the direction of travel
 await p.showWord('MUTEX');   // holds up the sign, keeps breathing
 await p.hideWord();          // sign back down
+await p.wave();              // waves
+await p.jump();              // hops with squash & stretch
+await p.point('left');       // points ('left'|'right', ms)
+await p.think(1800);         // thought bubble with pulsing dots
+await p.sleep();             // falls asleep, zZz
+await p.wake();              // wakes up
+await p.startle();           // startles (an interrupt!)
+await p.freeze();            // freezes gray (SIGSTOP)
+await p.unfreeze();          // thaws (SIGCONT)
+await p.celebrate();         // cheers with confetti (exit 0)
+const kid = await p.fork();  // duplicates itself, returns the clone
+p.look('left');              // gaze: left|right|up|down|center
 await p.zombie();            // eyes turn to crosses, tilts over
 await p.terminate();         // shake → explosion → gone
 p.despawn();                 // gone instantly, no explosion</pre>
+      <p>Customize the sign via attributes: <code>sign-style="bubble"</code> (speech bubble instead of a sign), <code>sign-color</code>, <code>sign-text-color</code>, <code>sign-border-color</code>.</p>
     </div>
   </div>
 
@@ -214,10 +245,58 @@ p.despawn();                 // gone instantly, no explosion</pre>
     cHost.appendChild(b);
   }
 
+  const clones = [];
+  const killClones = () => { clones.forEach(c => c.remove()); clones.length = 0; };
+
+  const ACTIONS = [
+    ['Wave', () => p.wave()],
+    ['Jump', () => p.jump()],
+    ['← Point', () => p.point('left')],
+    ['Point →', () => p.point('right')],
+    ['Think', () => p.think(2200)],
+    ['Sleep', () => p.sleep()],
+    ['Wake', () => p.wake()],
+    ['Startle', () => p.startle()],
+    ['Freeze', () => p.freeze()],
+    ['Unfreeze', () => p.unfreeze()],
+    ['Celebrate', () => p.celebrate()],
+    ['fork()', async () => { const c = await p.fork(); if (c) clones.push(c); }],
+  ];
+  const aHost = document.getElementById('actions');
+  for (const [label, fn] of ACTIONS) {
+    const b = document.createElement('button');
+    b.className = 'action';
+    b.textContent = label;
+    b.onclick = fn;
+    aHost.appendChild(b);
+  }
+
+  const lHost = document.getElementById('looks');
+  for (const [label, d] of [['←', 'left'], ['→', 'right'], ['↑', 'up'], ['↓', 'down'], ['·', 'center']]) {
+    const b = document.createElement('button');
+    b.className = 'look';
+    b.textContent = label;
+    b.onclick = () => p.look(d);
+    lHost.appendChild(b);
+  }
+
+  const sHost = document.getElementById('signs');
+  for (const style of ['sign', 'bubble']) {
+    const b = document.createElement('button');
+    b.className = 'sign-toggle' + (style === p.signStyle ? ' on' : '');
+    b.textContent = style;
+    b.onclick = () => {
+      p.signStyle = style;
+      sHost.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    };
+    sHost.appendChild(b);
+  }
+
   const word = () => wordInput.value.toUpperCase() || 'DEADBEEF';
   wordInput.addEventListener('input', () => { wordInput.value = wordInput.value.toUpperCase(); });
 
   document.getElementById('bSpawn').onclick = () => {
+    killClones();
     if (p.state !== 'hidden') p.despawn();
     p.spawn(260 + Math.random() * 500);
   };
@@ -228,16 +307,20 @@ p.despawn();                 // gone instantly, no explosion</pre>
   document.getElementById('bZombie').onclick = () => p.zombie();
   document.getElementById('bBoom').onclick = () => p.terminate();
   document.getElementById('bDemo').onclick = async () => {
+    killClones();
     p.despawn();
     await wait(150);
     await p.spawn(240);
-    await wait(350);
+    await p.wave();
+    await wait(250);
     await p.walkTo(1150);
     await p.showWord(word());
     await wait(2000);
     await p.hideWord();
     await wait(250);
+    await p.think(1600);
     await p.walkTo(1650);
+    await p.celebrate();
     await wait(200);
     await p.terminate();
   };

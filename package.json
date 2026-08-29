@@ -1,6 +1,6 @@
 {
   "name": "daemonling",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A tiny animated process character (web component) that lives on top of your slides — spawns, walks, holds up code words, goes zombie, and terminates with a bang.",
   "keywords": [
     "web-component",

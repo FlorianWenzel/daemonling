@@ -51,12 +51,16 @@ export interface VariantConfig {
 export const MONO =
   '&quot;JetBrains Mono&quot;, ui-monospace, Menlo, Consolas, monospace';
 
+/** Same stack, unescaped — for CSS on regular DOM nodes (fx bubbles etc.). */
+export const MONO_CSS =
+  '"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace';
+
 export const VARIANTS: Record<string, VariantConfig> = {
   classic: {
     headTop: 56,
     eyes: { lx: 49, rx: 71, y: 86, r: 10.5, pr: 4.4, pdx: 2.5 },
     arms: {
-      lox: 30, loy: 97, rox: 90, roy: 97, def: 7, up: 160,
+      lox: 30, loy: 97, rox: 90, roy: 97, def: 7, up: 200,
       l: '<rect x="25" y="94" width="9" height="27" rx="4.5" fill="#04102B"/>',
       r: '<rect x="86" y="94" width="9" height="27" rx="4.5" fill="#04102B"/>',
     },
@@ -86,7 +90,7 @@ export const VARIANTS: Record<string, VariantConfig> = {
     headTop: 56,
     eyes: { lx: 47, rx: 73, y: 88, r: 11.5, pr: 4.6, pdx: 2.6 },
     arms: {
-      lox: 23, loy: 96, rox: 97, roy: 96, def: 16, up: 165,
+      lox: 23, loy: 96, rox: 97, roy: 96, def: 16, up: 205,
       l: '<rect x="18" y="94" width="9" height="24" rx="4.5" fill="#04102B"/>',
       r: '<rect x="93" y="94" width="9" height="24" rx="4.5" fill="#04102B"/>',
     },
@@ -103,7 +107,7 @@ export const VARIANTS: Record<string, VariantConfig> = {
     headTop: 56,
     eyes: { lx: 49, rx: 71, y: 97, r: 10, pr: 4.2, pdx: 2.4 },
     arms: {
-      lox: 28, loy: 98, rox: 92, roy: 98, def: 7, up: 160,
+      lox: 28, loy: 98, rox: 92, roy: 98, def: 7, up: 200,
       l: '<rect x="24" y="96" width="9" height="26" rx="4.5" fill="#04102B"/>',
       r: '<rect x="87" y="96" width="9" height="26" rx="4.5" fill="#04102B"/>',
     },
@@ -121,7 +125,7 @@ export const VARIANTS: Record<string, VariantConfig> = {
     float: true,
     eyes: { lx: 48, rx: 72, y: 92, r: 11, pr: 4.5, pdx: 2.5 },
     arms: {
-      lox: 31, loy: 102, rox: 89, roy: 102, def: 12, up: 165,
+      lox: 31, loy: 102, rox: 89, roy: 102, def: 12, up: 205,
       l: '<rect x="26" y="100" width="9" height="22" rx="4.5" fill="#04102B"/>',
       r: '<rect x="85" y="100" width="9" height="22" rx="4.5" fill="#04102B"/>',
     },
@@ -135,7 +139,7 @@ export const VARIANTS: Record<string, VariantConfig> = {
     headTop: 64,
     eyes: { lx: 48, rx: 72, y: 102, r: 9.5, pr: 4, pdx: 2.2 },
     arms: {
-      lox: 22, loy: 90, rox: 98, roy: 90, def: 14, up: 165,
+      lox: 22, loy: 90, rox: 98, roy: 90, def: 14, up: 205,
       l: '<rect x="19" y="88" width="6" height="26" rx="3" fill="#04102B"/>',
       r: '<rect x="95" y="88" width="6" height="26" rx="3" fill="#04102B"/>',
     },

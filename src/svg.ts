@@ -1,5 +1,15 @@
 import { DEFAULT_BODY, DEFAULT_DETAIL, isLight } from './color';
-import { MONO, type EyeConfig, type VariantConfig } from './variants';
+import { MONO, MONO_CSS, type EyeConfig, type VariantConfig } from './variants';
+
+export type SignStyle = 'sign' | 'bubble';
+
+export interface SignOptions {
+  style: SignStyle;
+  bg: string;
+  text: string;
+  border: string;
+  hand: string;
+}
 
 function eyesMarkup(e: EyeConfig): string {
   const d = Math.max(3.4, e.r * 0.5);
@@ -11,20 +21,28 @@ function eyesMarkup(e: EyeConfig): string {
     <path d="M${e.lx - d} ${e.y - d} ${e.lx + d} ${e.y + d} M${e.lx + d} ${e.y - d} ${e.lx - d} ${e.y + d} M${e.rx - d} ${e.y - d} ${e.rx + d} ${e.y + d} M${e.rx + d} ${e.y - d} ${e.rx - d} ${e.y + d}"/></g>`;
 }
 
-function signMarkup(c: VariantConfig): string {
+function signMarkup(c: VariantConfig, o: SignOptions): string {
   const top = c.headTop - 50;
+  const label = `<text id="signText" x="60" y="${top + 28}" text-anchor="middle" font-family='${MONO}' font-size="19" font-weight="700" fill="${o.text}">WORD</text>`;
+  if (o.style === 'bubble') {
+    const b = top + 42;
+    return `<g id="signGrp"><g id="signFlip">
+    <path d="M46 ${b - 4} L60 ${b + 12} L74 ${b - 4} Z" fill="${o.bg}" stroke="${o.border}" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="4" y="${top}" width="112" height="42" rx="17" fill="${o.bg}" stroke="${o.border}" stroke-width="3"/>
+    <path d="M49 ${b - 3} L60 ${b + 9} L71 ${b - 3} Z" fill="${o.bg}"/>${label}</g></g>`;
+  }
   const hands = c.arms
-    ? `<circle cx="31" cy="${top + 45}" r="5" fill="#04102B"/><circle cx="89" cy="${top + 45}" r="5" fill="#04102B"/>`
+    ? `<circle cx="25" cy="${top + 45}" r="5" fill="${o.hand}"/><circle cx="95" cy="${top + 45}" r="5" fill="${o.hand}"/>`
     : '';
-  return `<g id="signGrp">${hands}
-    <rect x="4" y="${top}" width="112" height="42" rx="7" fill="#D9FF3C" stroke="#04102B" stroke-width="3"/>
-    <text id="signText" x="60" y="${top + 28}" text-anchor="middle" font-family='${MONO}' font-size="19" font-weight="700" fill="#04102B">WORD</text></g>`;
+  return `<g id="signGrp"><g id="signFlip">${hands}
+    <rect x="4" y="${top}" width="112" height="42" rx="7" fill="${o.bg}" stroke="${o.border}" stroke-width="3"/>${label}</g></g>`;
 }
 
 export function buildSVG(
   c: VariantConfig,
   color: string,
   detail: string,
+  signO: SignOptions,
 ): string {
   const legs = c.legs
     ? `<g id="legL">${c.legs.l}</g><g id="legR">${c.legs.r}</g>`
@@ -33,7 +51,7 @@ export function buildSVG(
     ? `<g id="armL">${c.arms.l}</g><g id="armR">${c.arms.r}</g>`
     : '';
   let parts = `${c.shadow ? `<g id="shadow">${c.shadow}</g>` : ''}|SPLIT|${legs}|SPLIT|<g id="bob"><g id="breathe">${arms}${c.body}${eyesMarkup(c.eyes)}${c.face || ''}`;
-  // Recolor body + detail; the sign (added after the split) always keeps the dark palette.
+  // Recolor body + detail; the sign is added afterwards with its own explicit colors.
   if (color && color !== DEFAULT_BODY)
     parts = parts
       .split(DEFAULT_BODY)
@@ -50,12 +68,12 @@ export function buildSVG(
   return `<svg viewBox="0 0 120 162" width="120" height="162">
   <g id="figure">${shadowC}<g id="hover"><g id="tilt">
     ${legsC}
-    ${restC}${signMarkup(c)}
+    ${restC}${signMarkup(c, signO)}
     </g></g>
   </g></g></g></svg>`;
 }
 
-export function buildCSS(c: VariantConfig): string {
+export function buildCSS(c: VariantConfig, signStyle: SignStyle): string {
   const e = c.eyes;
   let css = `
 :host{position:absolute;left:0;bottom:0;display:block;pointer-events:none;}
@@ -74,6 +92,7 @@ svg{display:block;overflow:visible;}
 #pupL{transform-box:view-box;transform-origin:${e.lx}px ${e.y}px;transition:transform .15s ease;}
 #pupR{transform-box:view-box;transform-origin:${e.rx}px ${e.y}px;transition:transform .15s ease;}
 #signGrp{transform-box:view-box;opacity:0;transform:translateY(34px) scale(.5);transform-origin:60px ${c.headTop - 6}px;transition:transform .34s cubic-bezier(.34,1.56,.64,1),opacity .18s ease;}
+#signFlip{transform-box:view-box;transform-origin:60px ${c.headTop - 29}px;}
 #eyesX{opacity:0;transition:opacity .3s ease;}
 #eyesN{transition:opacity .3s ease;}
 .alive #eyeL,.alive #eyeR{animation:dl-blink 4.2s ease-in-out infinite;}
@@ -86,20 +105,50 @@ svg{display:block;overflow:visible;}
 .panic #figure{animation:dl-shake .08s linear infinite;}
 .panic #eyeL,.panic #eyeR{animation:none;transform:scale(1.32);}
 .panic #pupL,.panic #pupR{transform:scale(.5);}
-.panic #signGrp,.zombie #signGrp{opacity:0;transform:translateY(34px) scale(.5);}
+.panic #signGrp,.zombie #signGrp,.sleeping #signGrp{opacity:0;transform:translateY(34px) scale(.5);}
+.sleeping #eyeL,.sleeping #eyeR{animation:none;transform:scaleY(.13);}
+.sleeping #breathe{animation:dl-breathe 4.4s ease-in-out infinite;}
+.sleeping #tilt{transform:rotate(4deg);}
+.startled #figure{animation:dl-shake .09s linear 6;}
+.startled #eyeL,.startled #eyeR{animation:none;transform:scale(1.3);}
+.startled #pupL,.startled #pupR{transform:scale(.55) !important;}
+.frozen svg{filter:grayscale(1) opacity(.8);}
+.frozen *{animation-play-state:paused !important;}
+#fxHost{position:absolute;left:50%;bottom:0;width:0;height:0;}
+.dl-z{position:absolute;left:6px;bottom:0;font-family:${MONO_CSS};font-weight:700;opacity:0;}
+.dl-think{position:absolute;left:8px;bottom:2px;transform-origin:0 100%;background:#FFFFFF;border:3px solid;border-radius:14px;padding:8px 11px;display:flex;gap:5px;}
+.dl-think i{width:7px;height:7px;border-radius:50%;background:currentColor;animation:dl-dot 1s ease-in-out infinite;}
+.dl-think i:nth-child(2){animation-delay:.15s;}
+.dl-think i:nth-child(3){animation-delay:.3s;}
+@keyframes dl-dot{0%,100%{transform:translateY(0);opacity:.45}40%{transform:translateY(-4px);opacity:1}}
 @keyframes dl-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.15)}}
 @keyframes dl-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.02,.965)}}
 @keyframes dl-zwob{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2.5deg)}}
 @keyframes dl-shake{0%{transform:translate(-2.5px,.5px) rotate(-1.6deg)}50%{transform:translate(2.5px,-1px) rotate(1.6deg)}100%{transform:translate(-2.5px,.5px) rotate(-1.6deg)}}
 `;
-  if (c.arms)
+  if (c.arms) {
     css += `
 #armL{transform-box:view-box;transform-origin:${c.arms.lox}px ${c.arms.loy}px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);transform:rotate(${c.arms.def}deg);}
 #armR{transform-box:view-box;transform-origin:${c.arms.rox}px ${c.arms.roy}px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);transform:rotate(${-c.arms.def}deg);}
-.showing #armL{transform:rotate(${-c.arms.up}deg);}
-.showing #armR{transform:rotate(${c.arms.up}deg);}
 .panic #armL{transform:rotate(-30deg);}
 .panic #armR{transform:rotate(30deg);}
+.pointing #armR{transform:rotate(-90deg);}
+.cheer #armL{transform:rotate(${-c.arms.up}deg);}
+.cheer #armR{transform:rotate(${c.arms.up}deg);}
+.waving #armR{animation:dl-wave 1.5s ease-in-out;}
+@keyframes dl-wave{0%,100%{transform:rotate(${-c.arms.def}deg)}18%{transform:rotate(${c.arms.up}deg)}34%{transform:rotate(${c.arms.up - 45}deg)}50%{transform:rotate(${c.arms.up}deg)}66%{transform:rotate(${c.arms.up - 45}deg)}84%{transform:rotate(${c.arms.up}deg)}}
+`;
+    if (signStyle !== 'bubble')
+      css += `
+.showing #armL{transform:rotate(${-c.arms.up}deg);}
+.showing #armR{transform:rotate(${c.arms.up}deg);}
+`;
+  } else
+    css += `
+.waving #bob{animation:dl-wavetilt 1.5s ease-in-out;}
+.pointing #bob{transform:rotate(9deg);}
+.cheer #bob{animation:dl-wavetilt 1s ease-in-out infinite;}
+@keyframes dl-wavetilt{0%,100%{transform:rotate(0deg)}20%,60%{transform:rotate(-9deg)}40%,80%{transform:rotate(9deg)}}
 `;
   if (c.legs)
     css += `
