@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>daemonling × reveal.js</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css">
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="../dist/reveal.global.js"></script>
+<style>
+  .reveal { font-family: Manrope, sans-serif; }
+  .reveal .dl-hint {
+    position: absolute; bottom: 8px; right: 12px; font-size: 13px;
+    font-family: ui-monospace, monospace; color: #9AA1AB; text-align: right;
+  }
+</style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <section data-dl="spawn 300; wave; walk 640">
+      <h2>daemonling × reveal.js</h2>
+      <p>One sprite lives in the deck, driven by <code>data-dl</code> attributes.</p>
+      <div class="dl-hint">data-dl="spawn 300; wave; walk 640"</div>
+    </section>
+
+    <section data-dl="spawn 160; walk 700; word MUTEX">
+      <h2>Code words</h2>
+      <p>Walks in and holds up the sign — every command awaits the previous one.</p>
+      <div class="dl-hint">data-dl="spawn 160; walk 700; word MUTEX"</div>
+    </section>
+
+    <section data-dl-keep>
+      <h2>Fragments</h2>
+      <p class="fragment" data-dl="think 2000">It thinks when this appears…</p>
+      <p class="fragment" data-dl="celebrate" data-dl-undo="startle">…celebrates here (step back to startle it).</p>
+      <div class="dl-hint">data-dl-keep + fragments with data-dl / data-dl-undo</div>
+    </section>
+
+    <section data-dl="spawn 480; sleep; wait 1600; wake; jump">
+      <h2>The scheduler preempts</h2>
+      <p>sleep → wake → jump.</p>
+      <div class="dl-hint">data-dl="spawn 480; sleep; wait 1600; wake; jump"</div>
+    </section>
+
+    <section data-dl="spawn 480; zombie; wait 1400; terminate">
+      <h2>Zombie, then reaped</h2>
+      <div class="dl-hint">data-dl="spawn 480; zombie; wait 1400; terminate"</div>
+    </section>
+
+  </div>
+</div>
+<script>
+  Reveal.initialize({
+    hash: true,
+    plugins: [RevealDaemonling({ size: 70, bottom: '10px' })],
+  });
+</script>
+</body>
+</html>

@@ -31,8 +31,9 @@ jobs:
       - name: Assemble site
         run: |
           mkdir -p _site/dist
-          cp dist/index.global.js dist/index.global.js.map _site/dist/
+          cp dist/index.global.js dist/index.global.js.map dist/reveal.global.js dist/reveal.global.js.map _site/dist/
           sed 's|\.\./dist/|dist/|' demo/index.html > _site/index.html
+          sed 's|\.\./dist/|dist/|' demo/reveal.html > _site/reveal.html
       - uses: actions/upload-pages-artifact@v3
       - id: deployment
         uses: actions/deploy-pages@v4

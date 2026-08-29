@@ -4,7 +4,7 @@ A tiny animated process character for your slides. `<daemonling-sprite>` is a ze
 
 Originally built to teach the process lifecycle (`new → ready → running → waiting → terminated`) in an operating systems lecture, but it works anywhere you want a small, expressive mascot: slides, docs, demos, error pages.
 
-**[▶ Live demo](https://florianwenzel.github.io/daemonling/)**
+**[▶ Live demo](https://florianwenzel.github.io/daemonling/)** · **[▶ reveal.js demo](https://florianwenzel.github.io/daemonling/reveal.html)**
 
 ![The seven variants](assets/variants.png)
 
@@ -122,6 +122,32 @@ All methods are `async` and resolve when the animation settles, so choreographie
 | `despawn()` | Hide immediately, no explosion. |
 | `state` | Read-only: `'hidden' \| 'idle' \| 'walking' \| 'showing' \| 'waving' \| 'jumping' \| 'pointing' \| 'thinking' \| 'sleeping' \| 'startled' \| 'frozen' \| 'cheering' \| 'zombie' \| 'exploding'`. |
 | `x` | Read-only: current x position in px. |
+
+## reveal.js plugin
+
+The optional `daemonling/reveal` subpath ships a [reveal.js](https://revealjs.com) plugin. It puts one persistent sprite into the deck's `.slides` element (so it scales with the presentation) and drives it declaratively from `data-dl` attributes:
+
+```js
+import RevealDaemonling from 'daemonling/reveal';
+
+Reveal.initialize({
+  plugins: [RevealDaemonling({ size: 70, variant: 'classic', bottom: '10px' })],
+});
+```
+
+Or without a build step (`<script src=".../dist/reveal.global.js">` defines `window.RevealDaemonling`).
+
+```html
+<section data-dl="spawn 200; walk 700; word MUTEX">…</section>
+<section data-dl-keep>sprite stays put here</section>
+<section>
+  <p class="fragment" data-dl="celebrate" data-dl-undo="startle">…</p>
+</section>
+```
+
+Commands are separated by `;`, arguments by spaces: `spawn [x]` · `walk x [speed]` · `word TEXT` · `hide` · `wave` · `jump` · `point left|right [ms]` · `think [ms]` · `sleep` · `wake` · `startle` · `freeze` · `unfreeze` · `celebrate` · `fork` · `look dir` · `zombie` · `terminate` · `despawn` · `wait ms` · `variant name` · `color value`. X coordinates use reveal's slide coordinate system (960×700 by default).
+
+Changing slides cancels the running script; slides without `data-dl` despawn the sprite unless they have `data-dl-keep` (or the plugin gets `autoDespawn: false`). Fragments run their `data-dl` when shown and `data-dl-undo` when hidden again. Options: `size`, `variant`, `color`, `speed`, `signStyle`, `bottom`, `zIndex`, `attribute` (rename `data-dl`), `autoDespawn`. The plugin object exposes `sprite` and `run(script)` for imperative control.
 
 ## TypeScript
 
